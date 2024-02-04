@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "71757750191",
+    "project_id": "uf2-mobils",
+    "storage_bucket": "uf2-mobils.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:71757750191:android:08fdc1b5dd69426884995a",
+        "android_client_info": {
+          "package_name": "com.example.uf2_mobils"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "71757750191-54d8bmtd4s0bhvr8dums94hqf8222l4a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.uf2_mobils",
+            "certificate_hash": "97330ad3af8d24062fee0978424230c32fce89b7"
+          }
+        },
+        {
+          "client_id": "71757750191-kafh0e526lkpthvdn4aaoue9ouu2l7gi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFn4ljoytoqHBNKLUYsuJwxYIwJB-BWMA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "71757750191-kafh0e526lkpthvdn4aaoue9ouu2l7gi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
