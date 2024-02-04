@@ -16,9 +16,12 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
 import com.example.uf2_mobils.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
@@ -67,23 +70,17 @@ public class MainActivity extends AppCompatActivity {
 
                 if(user != null){
                     if (user.getPhotoUrl() == null){
-                        final String[] foto = new String[1];
-                        db.collection("users").document(user.getUid())
-                                .get()
-                                .addOnSuccessListener(documentSnapshot -> {
-                                    if (documentSnapshot.exists()) {
-                                        System.out.println(documentSnapshot.getString("mediaUri").toString());
-                                        foto[0] = documentSnapshot.getString("mediaUri").toString();
-                                    } else {
-                                        // El campo "nombre" no está presente en el documento
-                                        System.out.println("error");
-                                    }
-                                });
-                        System.out.println(foto[0]);
-                        Glide.with(MainActivity.this)
-                                .load(foto[0])
-                                .circleCrop()
-                                .into(photo);
+                        DocumentReference userFromFirebase = FirebaseFirestore.getInstance().collection("users").document(user.getUid());
+                        userFromFirebase.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                User usuario = documentSnapshot.toObject(User.class);
+
+                                name.setText(usuario.getName());
+                                email.setText(usuario.getEmail());
+                                Glide.with(MainActivity.this).load(usuario.getMediaUri()).circleCrop().into(photo);
+                            }
+                        });
                     } else{
                         Glide.with(MainActivity.this)
                                 .load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().toString())

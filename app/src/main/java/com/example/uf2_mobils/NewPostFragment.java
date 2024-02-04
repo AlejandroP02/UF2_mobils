@@ -125,26 +125,14 @@ public class NewPostFragment extends Fragment {
     private void guardarEnFirestore(String postContent, String mediaUrl) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String photo;
+        String photo="";
         //if (user.getPhotoUrl() != null){
         //    photo = user.getPhotoUrl().toString();
         //}
         String displayName = user.getDisplayName();
 
         if (user.getPhotoUrl() == null){
-            final String[] foto = new String[1];
-            db.collection("users").document(user.getUid())
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            System.out.println(documentSnapshot.getString("mediaUri").toString());
-                            foto[0] = documentSnapshot.getString("mediaUri").toString();
-                        } else {
-                            // El campo "nombre" no está presente en el documento
-                            System.out.println("error");
-                        }
-                    });
-            photo = foto[0];
+            photo = null;
         }else {
             photo = user.getPhotoUrl().toString();
         }
