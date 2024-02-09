@@ -32,12 +32,27 @@ import com.google.firebase.firestore.Query;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+/**
+ * Clase que representa el fragmento de la
+ * pantalla principal de la aplicación.
+ */
 public class HomeFragment extends Fragment {
 
+    /**
+     * Para poder navegar entre pantallas.
+     */
     private NavController navController;
+    /**
+     * Para poder llamar a los metodos del
+     * viewModel.
+     */
     public AppViewModel appViewModel;
 
-    public static HomeFragment newInstance(String param1, String param2) {
+    /**
+     * Método estático para crear una instancia del fragmento.
+     * @return Una nueva instancia del fragmento HomeFragment.
+     */
+    public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -84,6 +99,9 @@ public class HomeFragment extends Fragment {
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
     }
 
+    /**
+     * Adaptador para las publicaciones.
+     */
     class PostsAdapter extends FirestoreRecyclerAdapter<Post, PostsAdapter.PostViewHolder> {
         public PostsAdapter(@NonNull FirestoreRecyclerOptions<Post> options) {super(options);}
 
@@ -95,6 +113,7 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull final Post post) {
+            holder.contentTextView.setText(post.content);
             DocumentReference userFromFirebase = FirebaseFirestore.getInstance().collection("users").document(post.uid);
             userFromFirebase.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -121,6 +140,7 @@ public class HomeFragment extends Fragment {
                                 FieldValue.delete() : true);
             });
 
+            // Configuración de la vista de media
             if (post.mediaUrl != null) {
                 holder.mediaImageView.setVisibility(View.VISIBLE);
                 if ("audio".equals(post.mediaType)) {
@@ -136,6 +156,7 @@ public class HomeFragment extends Fragment {
                 holder.mediaImageView.setVisibility(View.GONE);
             }
 
+            // Configuración de la eliminación de publicaciones
             if (post.uid.contains(uid)){
                 holder.deleteImageView.setVisibility(View.VISIBLE);
                 holder.deleteImageView.setOnClickListener(view -> {
@@ -157,7 +178,7 @@ public class HomeFragment extends Fragment {
                 holder.deleteImageView.setVisibility(View.GONE);
             }
 
-            //fecha y hora
+            // Configuración de la vista de fecha y hora
             SimpleDateFormat format = new SimpleDateFormat("HH/mm dd/MM/yyyy");
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(post.timeStamp);
@@ -165,8 +186,10 @@ public class HomeFragment extends Fragment {
             holder.timeTextView.setText(format.format(calendar.getTime()));
         }
 
-
-
+        /**
+         * Clase que representa el ViewHolder para
+         * cada publicación en el RecyclerView.
+         */
         class PostViewHolder extends RecyclerView.ViewHolder {
             ImageView authorPhotoImageView, likeImageView, mediaImageView, deleteImageView;
             TextView authorTextView, contentTextView, numLikesTextView, timeTextView;
@@ -177,10 +200,8 @@ public class HomeFragment extends Fragment {
                 likeImageView = itemView.findViewById(R.id.likeImageView);
                 mediaImageView = itemView.findViewById(R.id.mediaImage);
                 authorTextView = itemView.findViewById(R.id.authorTextView);
-                contentTextView =
-                        itemView.findViewById(R.id.contentTextView);
-                numLikesTextView =
-                        itemView.findViewById(R.id.numLikesTextView);
+                contentTextView = itemView.findViewById(R.id.contentTextView);
+                numLikesTextView = itemView.findViewById(R.id.numLikesTextView);
                 timeTextView = itemView.findViewById(R.id.timeTextView);
                 deleteImageView = itemView.findViewById(R.id.deleteImageView);
             }

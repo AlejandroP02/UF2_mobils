@@ -30,19 +30,60 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.UUID;
 
+/**
+ * Fragmento que muestra el perfil del usuario
+ * y permite realizar ediciones en él.
+ */
 public class ProfileFragment extends Fragment {
 
+    /**
+     * ImageView para mostrar la foto de perfil
+     * del usuario.
+     */
     ImageView photoImageView;
+
+    /**
+     * TextViews para mostrar el nombre y
+     * correo electrónico del usuario.
+     */
     TextView displayNameTextView, emailTextView;
+    /**
+     * Botones para editar el perfil, guardar
+     * datos y editar la foto de perfil
+     */
     Button editProfile, saveData, editPhoto;
+
+    /**
+     * Vista raíz del fragmento.
+     */
     private View rootView;
+
+    /**
+     * Variables para almacenar información
+     * del usuario y de los medios.
+     */
     private String userName, userEmail, userPhoto, mediaTipo;
+
+    /**
+     * ViewModel para la comunicación entre
+     * fragmentos.
+     */
     public AppViewModel appViewModel;
+
+    /**
+     * URI del media seleccionado.
+     */
     private Uri mediaUri;
+
+    /**
+     * Instancia de FirebaseAuth para la
+     * autenticación del usuario..
+     */
     private FirebaseAuth mAuth;
 
-
-
+    /**
+     * Constructor vacío de la clase ProfileFragment.
+     */
     public ProfileFragment() {}
 
 
@@ -57,6 +98,7 @@ public class ProfileFragment extends Fragment {
 
         rootView = view; // Asigna la vista actual a rootView
 
+        // Inicialización de vistas y componentes
         photoImageView = view.findViewById(R.id.photoImageView);
         displayNameTextView = view.findViewById(R.id.displayNameTextView);
         emailTextView = view.findViewById(R.id.emailTextView);
@@ -67,9 +109,12 @@ public class ProfileFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         NavController navController = Navigation.findNavController(view);
 
+        // Obtención del usuario actual
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         if(user != null){
+            // Configuración de la información del usuario
+            // Nombre para usuarios de correo.
             String name = user.getEmail().split("@")[0].toString();
             if (user.getDisplayName() != null){
                 displayNameTextView.setText(user.getDisplayName());
@@ -83,22 +128,20 @@ public class ProfileFragment extends Fragment {
             } else {
                 Glide.with(requireView()).load(user.getPhotoUrl()).into(photoImageView);
             }
+            // Obtención de datos del usuario desde Firestore
             DocumentReference userFromFirebase = FirebaseFirestore.getInstance().collection("users").document(user.getUid());
             userFromFirebase.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User usuario = documentSnapshot.toObject(User.class);
-
                     displayNameTextView.setText(usuario.getName());
                     emailTextView.setText(usuario.getEmail());
                     Glide.with(requireView()).load(usuario.getMediaUri()).circleCrop().into(photoImageView);
                 }
             });
         }
-        else{
 
-        }
-
+        // Manejo de eventos de los botones
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,23 +165,28 @@ public class ProfileFragment extends Fragment {
                 userEmail = emailTextView.getText().toString();
                 pujaIguardarEnFirestore(userName);
 
+                // Navegar de regreso al perfil
                 navController.navigate(R.id.profileFragment);
+
 
             }
         });
         view.findViewById(R.id.editPhoto).setOnClickListener(v -> seleccionarImagen());
 
+        // Observador para el cambio de medios seleccionados
         appViewModel.mediaSeleccionado.observe(getViewLifecycleOwner(), media -> {
             this.mediaTipo = media.tipo;
             this.mediaUri = media.uri;
             Glide.with(this).load(media.uri).circleCrop().into((ImageView) view.findViewById(R.id.photoImageView));
         });
-
-
     }
 
-
+    /**
+     * Método para convertir un TextView en EditText.
+     * @param view La vista que se va a convertir.
+     */
     private void convertToEditText(View view) {
+        // Verifica si la vista es un TextView
         if (view instanceof TextView) {
             TextView textView = (TextView) view;
             // Obtener el texto actual
@@ -162,16 +210,26 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Imagene de la galeria.
+     */
     private final ActivityResultLauncher<String> galeria =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 appViewModel.setMediaSeleccionado(uri, mediaTipo);
             });
 
+    /**
+     * Método para seleccionar una imagen de la galería.
+     */
     private void seleccionarImagen() {
         mediaTipo = "image";
         galeria.launch("image/*");
     }
 
+    /**
+     * Método para subir y guardar una foto en Firestore.
+     * @param postText El texto de la publicación.
+     */
     private void pujaIguardarEnFirestore(final String postText) {
         FirebaseStorage.getInstance().getReference(mediaTipo + "/" +
                         UUID.randomUUID())
@@ -180,10 +238,14 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener(url -> selectPhoto(url.toString()));
     }
 
+    /**
+     * Método para seleccionar una foto y
+     * actualizar los datos del usuario en Firestore.
+     * @param uri La URI de la foto seleccionada.
+     */
     private void selectPhoto(String uri){
         userPhoto = uri;
         User user = new User(userEmail,null,mAuth.getCurrentUser().getUid(),userPhoto,userName);
         FirebaseFirestore.getInstance().collection("users").document(user.getUID()).set(user);
-
     }
 }

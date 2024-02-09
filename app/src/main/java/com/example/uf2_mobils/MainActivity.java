@@ -25,9 +25,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
+/**
+ * Actividad principal que controla la navegación
+ * y la configuración de la interfaz de usuario.
+ */
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Barra de navegación.
+     */
     private AppBarConfiguration mAppBarConfiguration;
+    /**
+     * Binding para poder llamar a elementos del layout.
+     */
     private ActivityMainBinding binding;
 
     @Override
@@ -47,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
         });*/
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+
+        // Configuración de la barra de navegación
         mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.homeFragment
                 )
                 .setOpenableLayout(drawer)
@@ -57,11 +67,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        // Configuración del encabezado de la barra de navegación
         View header = navigationView.getHeaderView(0);
         final ImageView photo = header.findViewById(R.id.photoImageView);
         final TextView name = header.findViewById(R.id.displayNameTextView);
         final TextView email = header.findViewById(R.id.emailTextView);
 
+        // Listener para actualizar la información del usuario en el encabezado
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -97,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Configuración de Firestore para no habilitar la persistencia de datos
         FirebaseFirestore.getInstance().setFirestoreSettings(new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(false)
                 .build());
@@ -104,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflar el menú; esto agrega elementos a la barra de acciones si está presente.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

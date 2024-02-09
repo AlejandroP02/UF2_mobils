@@ -38,20 +38,48 @@ import java.util.UUID;
 
 import firebase.com.protolitewrapper.BuildConfig;
 
+/**
+ * Fragmento para crear una nueva publicación.
+ */
 public class NewPostFragment extends Fragment {
 
+    /**
+     * Para publicar el post.
+     */
     Button publishButton;
+    /**
+     * Para editar el contenido del post.
+     */
     EditText postConentEditText;
+    /**
+     * Para poder navegar entre pantallas.
+     */
     private NavController navController;
+    /**
+     * Para poder llamar a los metodos del
+     * viewModel.
+     */
     public AppViewModel appViewModel;
 
+    /**
+     * Contiene la información de el media.
+     */
     Uri mediaUri;
+    /**
+     * Contiene el tipo de media.
+     */
     String mediaTipo;
 
-    public NewPostFragment() {
-        // Required empty public constructor
-    }
-    public static NewPostFragment newInstance(String param1, String param2) {
+    /**
+     * Constructor vacío requerido para instanciar el fragmento.
+     */
+    public NewPostFragment() {}
+
+    /**
+     * Método estático para crear una nueva instancia de NewPostFragment.
+     * @return Una nueva instancia de NewPostFragment.
+     */
+    public static NewPostFragment newInstance() {
         NewPostFragment fragment = new NewPostFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -68,7 +96,7 @@ public class NewPostFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflar el diseño para este fragmento
         return inflater.inflate(R.layout.fragment_new_post, container, false);
     }
 
@@ -106,6 +134,9 @@ public class NewPostFragment extends Fragment {
         });
     }
 
+    /**
+     * Método para publicar la nueva publicación.
+     */
     private void publicar() {
         String postContent = postConentEditText.getText().toString();
         if(TextUtils.isEmpty(postContent)){
@@ -122,6 +153,11 @@ public class NewPostFragment extends Fragment {
         }
     }
 
+    /**
+     * Método para guardar la publicación en Firestore.
+     * @param postContent Contenido de la publicación.
+     * @param mediaUrl URL del medio adjunto a la publicación.
+     */
     private void guardarEnFirestore(String postContent, String mediaUrl) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -154,6 +190,11 @@ public class NewPostFragment extends Fragment {
                 });
     }
 
+    /**
+     * Método para subir el archivo y guardar la
+     * publicación en Firestore.
+     * @param postText Contenido de la publicación.
+     */
     private void pujaIguardarEnFirestore(final String postText) {
         FirebaseStorage.getInstance().getReference(mediaTipo + "/" +
                         UUID.randomUUID())
@@ -164,20 +205,39 @@ public class NewPostFragment extends Fragment {
                         url.toString()));
     }
 
+    // Métodos para la selección de medios y captura de contenido multimedia
+
+    /**
+     * Permite abrir la galeria del dispositivo.
+     */
     private final ActivityResultLauncher<String> galeria =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 appViewModel.setMediaSeleccionado(uri, mediaTipo);
             });
+
+    /**
+     * Permite abrir la camara del dispositivo
+     * para realizar una foto.
+     */
     private final ActivityResultLauncher<Uri> camaraFotos =
             registerForActivityResult(new ActivityResultContracts.TakePicture(),
                     isSuccess -> {
                         appViewModel.setMediaSeleccionado(mediaUri, "image");
                     });
+
+    /**
+     * Permite abrir la camara del dispositivo
+     * para realizar una video.
+     */
     private final ActivityResultLauncher<Uri> camaraVideos =
             registerForActivityResult(new ActivityResultContracts.TakeVideo(), isSuccess
                     -> {
                 appViewModel.setMediaSeleccionado(mediaUri, "video");
             });
+
+    /**
+     * Permite abrir la grabadora del dispositivo.
+     */
     private final ActivityResultLauncher<Intent> grabadoraAudio =
             registerForActivityResult(new
                     ActivityResultContracts.StartActivityForResult(), result -> {
@@ -186,18 +246,34 @@ public class NewPostFragment extends Fragment {
                             "audio");
                 }
             });
+
+    /**
+     * Permite seleccionar una imagen.
+     */
     private void seleccionarImagen() {
         mediaTipo = "image";
         galeria.launch("image/*");
     }
+
+    /**
+     * Permite seleccionar un video.
+     */
     private void seleccionarVideo() {
         mediaTipo = "video";
         galeria.launch("video/*");
     }
+
+    /**
+     * Permite seleccionar un audio.
+     */
     private void seleccionarAudio() {
         mediaTipo = "audio";
         galeria.launch("audio/*");
     }
+
+    /**
+     * Permite realizar una foto.
+     */
     private void tomarFoto() {
         try {
             mediaUri = FileProvider.getUriForFile(requireContext(),
@@ -207,6 +283,10 @@ public class NewPostFragment extends Fragment {
             camaraFotos.launch(mediaUri);
         } catch (IOException e) {}
     }
+
+    /**
+     * Permite realizar un video.
+     */
     private void tomarVideo() {
         try {
             mediaUri = FileProvider.getUriForFile(requireContext(),
@@ -216,6 +296,10 @@ public class NewPostFragment extends Fragment {
             camaraVideos.launch(mediaUri);
         } catch (IOException e) {}
     }
+
+    /**
+     * Permite grabar un audio.
+     */
     private void grabarAudio() {
         grabadoraAudio.launch(new
                 Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION));
